@@ -49,6 +49,7 @@
 #include <timer.h>
 
 #include "lorawan.h"
+#include "lorawan_cli.h"
 #include "console_task.h"
 #include "task_message.h"
 
@@ -325,7 +326,7 @@ static void lorawan_setup()
 
 void lorawan_task(void *pvParameters)
 {
-//    FreeRTOS_CLIRegisterCommand(&ApplicationCommandDefinition);
+    FreeRTOS_CLIRegisterCommand(&LoRaWANCommandDefinition);
     LoRaWANTaskQueue = xQueueCreate(10, sizeof(task_message_t));
 
     am_util_stdio_printf("\r\n\r\nLoRaWAN Application State Machine Started\r\n\r\n");
