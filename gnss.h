@@ -29,27 +29,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
+#ifndef _GNSS_H_
+#define _GNSS_H_
 
-#include <am_bsp.h>
-#include <am_mcu_apollo.h>
-#include <am_util.h>
+extern TaskHandle_t gnss_task_handle;
 
-#include <FreeRTOS.h>
-#include <queue.h>
+extern void gnss_task(void *pvParameters);
 
-#include "console_task.h"
-#include "application.h"
-
-TaskHandle_t application_task_handle;
-
-void application_task(void *pvParameters)
-{
-    while (1) {
-        am_hal_gpio_state_write(10, AM_HAL_GPIO_OUTPUT_TOGGLE);
-        vTaskDelay(500);
-    }
-}
+#endif /* _GNSS_H_ */

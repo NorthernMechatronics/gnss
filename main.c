@@ -17,6 +17,7 @@
 #include "gpio_service.h"
 #include "iom_service.h"
 
+#include "gnss.h"
 #include "application.h"
 
 //*****************************************************************************
@@ -132,8 +133,10 @@ void system_start(void)
     xTaskCreate(nm_gpio_task, "GPIO", 512, 0, 4, &nm_gpio_task_handle);
     xTaskCreate(nm_iom_task, "IOM", 512, 0, 4, &nm_iom_task_handle);
 
-    xTaskCreate(nm_console_task, "Console", 512, 0, 2, &nm_console_task_handle);
-    xTaskCreate(application_task, "Application", 512, 0, 1,
+    xTaskCreate(nm_console_task, "Console", 512, 0, 3, &nm_console_task_handle);
+    xTaskCreate(gnss_task, "GNSS", 128, 0, 2,
+                &gnss_task_handle);
+    xTaskCreate(application_task, "Application", 128, 0, 2,
                 &application_task_handle);
 
     //

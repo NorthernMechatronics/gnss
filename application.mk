@@ -50,4 +50,6 @@ SRC += console_task.c
 SRC += gpio_service.c
 SRC += iom_service.c
 
+SRC += gnss.c
 SRC += application.c
+
