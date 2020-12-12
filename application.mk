@@ -43,13 +43,21 @@ endif
 #******************************************************************************
 
 INCLUDES += -I$(NM_SDK)/platform/console
+INCLUDES += -I./soft-se
 
 VPATH += $(NM_SDK)/platform/console
+VPATH += ./soft-se
 
 SRC += console_task.c
 SRC += gpio_service.c
 SRC += iom_service.c
 
+SRC += aes.c
+SRC += cmac.c
+SRC += soft-se.c
+SRC += soft-se-hal.c
+
+SRC += lorawan.c
 SRC += gnss.c
 SRC += application.c
 

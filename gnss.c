@@ -137,7 +137,7 @@ static void gnss_parse_gll()
 	memcpy(buffer, &gsGnssResultBuffer[25], 1);
 
 	double lon = (lon_deg + lon_min / 60.0) * (buffer[0] == 'E' ? 1.0 : -1.0);
-
+/*
 	memcpy(buffer, &gsGnssResultBuffer[27], 2);
 	buffer[3] = 0;
 	int hour = atoi(buffer);
@@ -152,10 +152,18 @@ static void gnss_parse_gll()
 
 
 	am_util_stdio_printf("\r%02d:%02d:%-04.1f  %3.9f, %3.9f\r", hour, min, sec, lat, lon);
+*/
+	taskENTER_CRITICAL();
+	gdLatitude = lat;
+	gdLongitude = lon;
+	taskEXIT_CRITICAL();
 }
 
 void gnss_task(void *pvParameters)
 {
+    am_util_stdio_printf("\r\n\r\nZED-F9P State Machine Started\r\n\r\n");
+    nm_console_print_prompt();
+
     uint8_t ui8Buffer[32];
     uint32_t ui32BytesRead = 0;
     am_hal_uart_transfer_t sUartRead = {
@@ -165,7 +173,6 @@ void gnss_task(void *pvParameters)
         .ui32TimeoutMs = 0,
         .pui32BytesTransferred = &ui32BytesRead,
     };
-
 
     char cmd[] = "$GxGLL,";
     size_t cmdlen = strlen(cmd);
@@ -201,6 +208,7 @@ void gnss_task(void *pvParameters)
             	}
             }
         }
+        taskYIELD();
     }
 }
 

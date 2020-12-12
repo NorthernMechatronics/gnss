@@ -17,6 +17,7 @@
 #include "gpio_service.h"
 #include "iom_service.h"
 
+#include "lorawan.h"
 #include "gnss.h"
 #include "application.h"
 
@@ -130,11 +131,14 @@ void system_start(void)
     // Setup tasks to register the GPIO and IOM commands in the console.
     // These are run at the highest priority to ensure that the commands
     // registered before the console starts.
-    xTaskCreate(nm_gpio_task, "GPIO", 512, 0, 4, &nm_gpio_task_handle);
+    am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
+
+	xTaskCreate(nm_gpio_task, "GPIO", 512, 0, 4, &nm_gpio_task_handle);
     xTaskCreate(nm_iom_task, "IOM", 512, 0, 4, &nm_iom_task_handle);
 
     xTaskCreate(nm_console_task, "Console", 512, 0, 3, &nm_console_task_handle);
-    xTaskCreate(gnss_task, "GNSS", 128, 0, 2,
+    xTaskCreate(lorawan_task, "LoRaWAN", 512, 0, 2, &lorawan_task_handle);
+    xTaskCreate(gnss_task, "GNSS", 256, 0, 2,
                 &gnss_task_handle);
     xTaskCreate(application_task, "Application", 128, 0, 2,
                 &application_task_handle);
