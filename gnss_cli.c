@@ -98,7 +98,6 @@ void prvGnssGetSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
     const char *pcParameterString;
     am_util_stdio_sprintf(pcWriteBuffer,
         "Last Known Position: %03.9f, %03.9f\r\n", gfLatitude, gfLongitude);
-    am_util_stdio_printf("%d\r\n", sizeof(float));
 }
 
 void prvGnssSendSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
