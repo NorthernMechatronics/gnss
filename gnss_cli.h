@@ -29,13 +29,12 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _GNSS_H_
-#define _GNSS_H_
+#ifndef _GNSS_CLI_H_
+#define _GNSS_CLI_H_
 
-extern float gfLatitude;
-extern float gfLongitude;
+#include <FreeRTOS.h>
+#include <FreeRTOS_CLI.h>
 
-extern TaskHandle_t gnss_task_handle;
-extern void gnss_task(void *pvParameters);
+extern CLI_Command_Definition_t GnssCommandDefinition;
 
-#endif /* _GNSS_H_ */
+#endif /* _GNSS_CLI_H_ */

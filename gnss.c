@@ -43,11 +43,12 @@
 
 #include "console_task.h"
 #include "gnss.h"
+#include "gnss_cli.h"
 
 TaskHandle_t gnss_task_handle;
 
-static double gdLatitude = 0.0;
-static double gdLongitude = 0.0;
+float gfLatitude = 0.0;
+float gfLongitude = 0.0;
 static uint8_t gsGnssResultBuffer[128];
 
 static uint8_t gsGnssUartBuffer[1024];
@@ -120,11 +121,11 @@ static void gnss_parse_gll()
 
 	memcpy(buffer, &gsGnssResultBuffer[2], 8);
 	buffer[8] = 0;
-	double lat_min = (double)atof(buffer);
+	float lat_min = (float)atof(buffer);
 
 	memcpy(buffer, &gsGnssResultBuffer[11], 1);
 
-	double lat = (lat_deg + lat_min / 60.0) * (buffer[0] == 'N' ? 1.0 : -1.0);
+	float lat = (lat_deg + lat_min / 60.0) * (buffer[0] == 'N' ? 1.0 : -1.0);
 
 	memcpy(buffer, &gsGnssResultBuffer[13], 3);
 	buffer[3] = 0;
@@ -132,11 +133,11 @@ static void gnss_parse_gll()
 
 	memcpy(buffer, &gsGnssResultBuffer[16], 8);
 	buffer[8] = 0;
-	double lon_min = (double)atof(buffer);
+	float lon_min = (float)atof(buffer);
 
 	memcpy(buffer, &gsGnssResultBuffer[25], 1);
 
-	double lon = (lon_deg + lon_min / 60.0) * (buffer[0] == 'E' ? 1.0 : -1.0);
+	float lon = (lon_deg + lon_min / 60.0) * (buffer[0] == 'E' ? 1.0 : -1.0);
 /*
 	memcpy(buffer, &gsGnssResultBuffer[27], 2);
 	buffer[3] = 0;
@@ -154,13 +155,15 @@ static void gnss_parse_gll()
 	am_util_stdio_printf("\r%02d:%02d:%-04.1f  %3.9f, %3.9f\r", hour, min, sec, lat, lon);
 */
 	taskENTER_CRITICAL();
-	gdLatitude = lat;
-	gdLongitude = lon;
+	gfLatitude = lat;
+	gfLongitude = lon;
 	taskEXIT_CRITICAL();
 }
 
 void gnss_task(void *pvParameters)
 {
+    FreeRTOS_CLIRegisterCommand(&GnssCommandDefinition);
+
     am_util_stdio_printf("\r\n\r\nZED-F9P State Machine Started\r\n\r\n");
     nm_console_print_prompt();
 
