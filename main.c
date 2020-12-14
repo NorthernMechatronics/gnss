@@ -128,11 +128,11 @@ void system_setup(void)
 
 void system_start(void)
 {
+    am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
+
     // Setup tasks to register the GPIO and IOM commands in the console.
     // These are run at the highest priority to ensure that the commands
     // registered before the console starts.
-    am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
-
 	xTaskCreate(nm_gpio_task, "GPIO", 512, 0, 4, &nm_gpio_task_handle);
     xTaskCreate(nm_iom_task, "IOM", 512, 0, 4, &nm_iom_task_handle);
 
