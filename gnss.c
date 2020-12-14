@@ -31,8 +31,8 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <am_bsp.h>
 #include <am_mcu_apollo.h>
@@ -103,42 +103,43 @@ static void gnss_application_setup()
     am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
 }
 
-static size_t gnss_cmd_fsm(char *cmd, uint8_t dont_care, char ch, size_t current_state)
+static size_t gnss_cmd_fsm(char *cmd, uint8_t dont_care, char ch,
+                           size_t current_state)
 {
-	if ((cmd[current_state] == ch) || (cmd[current_state] == dont_care))
-		return current_state + 1;
+    if ((cmd[current_state] == ch) || (cmd[current_state] == dont_care))
+        return current_state + 1;
 
-	return 0;
+    return 0;
 }
 
 static void gnss_parse_gll()
 {
-	char buffer[32];
+    char buffer[32];
 
-	memcpy(buffer, &gsGnssResultBuffer[0], 2);
-	buffer[2] = 0;
-	int lat_deg = atoi(buffer);
+    memcpy(buffer, &gsGnssResultBuffer[0], 2);
+    buffer[2] = 0;
+    int lat_deg = atoi(buffer);
 
-	memcpy(buffer, &gsGnssResultBuffer[2], 8);
-	buffer[8] = 0;
-	float lat_min = (float)atof(buffer);
+    memcpy(buffer, &gsGnssResultBuffer[2], 8);
+    buffer[8] = 0;
+    float lat_min = (float)atof(buffer);
 
-	memcpy(buffer, &gsGnssResultBuffer[11], 1);
+    memcpy(buffer, &gsGnssResultBuffer[11], 1);
 
-	float lat = (lat_deg + lat_min / 60.0) * (buffer[0] == 'N' ? 1.0 : -1.0);
+    float lat = (lat_deg + lat_min / 60.0) * (buffer[0] == 'N' ? 1.0 : -1.0);
 
-	memcpy(buffer, &gsGnssResultBuffer[13], 3);
-	buffer[3] = 0;
-	int lon_deg = atoi(buffer);
+    memcpy(buffer, &gsGnssResultBuffer[13], 3);
+    buffer[3] = 0;
+    int lon_deg = atoi(buffer);
 
-	memcpy(buffer, &gsGnssResultBuffer[16], 8);
-	buffer[8] = 0;
-	float lon_min = (float)atof(buffer);
+    memcpy(buffer, &gsGnssResultBuffer[16], 8);
+    buffer[8] = 0;
+    float lon_min = (float)atof(buffer);
 
-	memcpy(buffer, &gsGnssResultBuffer[25], 1);
+    memcpy(buffer, &gsGnssResultBuffer[25], 1);
 
-	float lon = (lon_deg + lon_min / 60.0) * (buffer[0] == 'E' ? 1.0 : -1.0);
-/*
+    float lon = (lon_deg + lon_min / 60.0) * (buffer[0] == 'E' ? 1.0 : -1.0);
+    /*
 	memcpy(buffer, &gsGnssResultBuffer[27], 2);
 	buffer[3] = 0;
 	int hour = atoi(buffer);
@@ -154,10 +155,10 @@ static void gnss_parse_gll()
 
 	am_util_stdio_printf("\r%02d:%02d:%-04.1f  %3.9f, %3.9f\r", hour, min, sec, lat, lon);
 */
-	taskENTER_CRITICAL();
-	gfLatitude = lat;
-	gfLongitude = lon;
-	taskEXIT_CRITICAL();
+    taskENTER_CRITICAL();
+    gfLatitude = lat;
+    gfLongitude = lon;
+    taskEXIT_CRITICAL();
 }
 
 void gnss_task(void *pvParameters)
@@ -188,27 +189,20 @@ void gnss_task(void *pvParameters)
 
         if (ui32BytesRead > 0) {
             for (int i = 0; i < ui32BytesRead; i++) {
-            	if (state == cmdlen)
-            	{
-                    if (ui8Buffer[i] == '\n')
-                    {
+                if (state == cmdlen) {
+                    if (ui8Buffer[i] == '\n') {
                         state = 0;
                         gnss_parse_gll(gsGnssResultBuffer);
                         memset(gsGnssResultBuffer, 0, 128);
+                    } else {
+                        gsGnssResultBuffer[result_index++] = ui8Buffer[i];
                     }
-                    else
-                    {
-                    	gsGnssResultBuffer[result_index++] = ui8Buffer[i];
+                } else {
+                    state = gnss_cmd_fsm(cmd, 'x', ui8Buffer[i], state);
+                    if (state == cmdlen) {
+                        result_index = 0;
                     }
-            	}
-            	else
-            	{
-            		state = gnss_cmd_fsm(cmd, 'x', ui8Buffer[i], state);
-            		if (state == cmdlen)
-            		{
-            			result_index = 0;
-            		}
-            	}
+                }
             }
         }
         taskYIELD();

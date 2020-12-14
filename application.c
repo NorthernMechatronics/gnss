@@ -31,8 +31,8 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <am_bsp.h>
 #include <am_mcu_apollo.h>
@@ -41,22 +41,22 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
+#include "application.h"
 #include "console_task.h"
-#include "task_message.h"
 #include "gnss.h"
 #include "lorawan.h"
-#include "application.h"
+#include "task_message.h"
 
-#define APPLICATION_CLOCK_SOURCE  AM_HAL_CTIMER_LFRC_32HZ
-#define APPLICATION_TIMER_PERIOD  32
+#define APPLICATION_CLOCK_SOURCE AM_HAL_CTIMER_LFRC_32HZ
+#define APPLICATION_TIMER_PERIOD 32
 #define APPLICATION_TIMER_SEGMENT AM_HAL_CTIMER_TIMERA
-#define APPLICATION_TIMER_NUMBER  0
-#define APPLICATION_TIMER_INT     AM_HAL_CTIMER_INT_TIMERA0
+#define APPLICATION_TIMER_NUMBER 0
+#define APPLICATION_TIMER_INT AM_HAL_CTIMER_INT_TIMERA0
 
 #define APPLICATION_REPORT_PERIOD 20
-#define APPLICATION_QUEUE_SIZE    10
+#define APPLICATION_QUEUE_SIZE 10
 
-TaskHandle_t  application_task_handle;
+TaskHandle_t application_task_handle;
 
 static bool bReportCoordinates;
 
@@ -64,19 +64,18 @@ static void application_button0_handler(void)
 {
     bReportCoordinates ^= 1;
 
-    if (bReportCoordinates)
-    {
+    if (bReportCoordinates) {
         am_hal_gpio_state_write(AM_BSP_GPIO_LED1, AM_HAL_GPIO_OUTPUT_SET);
         am_hal_gpio_state_write(AM_BSP_GPIO_LED2, AM_HAL_GPIO_OUTPUT_TOGGLE);
         uint32_t ui32Period =
-        		APPLICATION_REPORT_PERIOD * APPLICATION_TIMER_PERIOD;
-        am_hal_ctimer_period_set(APPLICATION_TIMER_NUMBER, APPLICATION_TIMER_SEGMENT, ui32Period,
+            APPLICATION_REPORT_PERIOD * APPLICATION_TIMER_PERIOD;
+        am_hal_ctimer_period_set(APPLICATION_TIMER_NUMBER,
+                                 APPLICATION_TIMER_SEGMENT, ui32Period,
                                  (ui32Period >> 1));
-        am_hal_ctimer_start(APPLICATION_TIMER_NUMBER, APPLICATION_TIMER_SEGMENT);
-    }
-    else
-    {
-    	am_hal_ctimer_stop(APPLICATION_TIMER_NUMBER, APPLICATION_TIMER_SEGMENT);
+        am_hal_ctimer_start(APPLICATION_TIMER_NUMBER,
+                            APPLICATION_TIMER_SEGMENT);
+    } else {
+        am_hal_ctimer_stop(APPLICATION_TIMER_NUMBER, APPLICATION_TIMER_SEGMENT);
         am_hal_gpio_state_write(AM_BSP_GPIO_LED2, AM_HAL_GPIO_OUTPUT_CLEAR);
         am_hal_gpio_state_write(AM_BSP_GPIO_LED1, AM_HAL_GPIO_OUTPUT_CLEAR);
     }
@@ -84,10 +83,11 @@ static void application_button0_handler(void)
 
 static void application_setup()
 {
-	bReportCoordinates = false;
+    bReportCoordinates = false;
     am_hal_gpio_state_write(AM_BSP_GPIO_LED1, AM_HAL_GPIO_OUTPUT_CLEAR);
 
-    am_hal_gpio_interrupt_register(AM_BSP_GPIO_BUTTON0, application_button0_handler);
+    am_hal_gpio_interrupt_register(AM_BSP_GPIO_BUTTON0,
+                                   application_button0_handler);
     am_hal_gpio_pinconfig(AM_BSP_GPIO_BUTTON0, g_AM_BSP_GPIO_BUTTON0);
     am_hal_gpio_interrupt_clear(AM_HAL_GPIO_BIT(AM_BSP_GPIO_BUTTON0));
     am_hal_gpio_interrupt_enable(AM_HAL_GPIO_BIT(AM_BSP_GPIO_BUTTON0));
@@ -110,19 +110,18 @@ static void application_timer_isr()
     task_message_t TaskMessage;
     TaskMessage.ui32Event = SEND;
     TaskMessage.psContent = &LmAppData;
-    xQueueSendFromISR(LoRaWANTaskQueue, &TaskMessage, &xHigherPriorityTaskWoken);
+    xQueueSendFromISR(LoRaWANTaskQueue, &TaskMessage,
+                      &xHigherPriorityTaskWoken);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
 static void application_reporting_timer_setup()
 {
-    am_hal_ctimer_config_t application_timer =
-    {
+    am_hal_ctimer_config_t application_timer = {
         0,
-        (AM_HAL_CTIMER_FN_REPEAT |
-        AM_HAL_CTIMER_INT_ENABLE |
-        APPLICATION_CLOCK_SOURCE),
+        (AM_HAL_CTIMER_FN_REPEAT | AM_HAL_CTIMER_INT_ENABLE |
+         APPLICATION_CLOCK_SOURCE),
         0,
     };
 
@@ -139,10 +138,10 @@ static void application_reporting_timer_setup()
 
 void application_task(void *pvParameters)
 {
-	application_setup();
-	application_reporting_timer_setup();
+    application_setup();
+    application_reporting_timer_setup();
 
-	task_message_t task_message;
+    task_message_t task_message;
     while (1) {
         am_hal_gpio_state_write(AM_BSP_GPIO_LED0, AM_HAL_GPIO_OUTPUT_TOGGLE);
         vTaskDelay(500);

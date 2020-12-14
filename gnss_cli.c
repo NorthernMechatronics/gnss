@@ -50,14 +50,14 @@
 #include <board.h>
 #include <timer.h>
 
-#include "lorawan.h"
+#include "console_task.h"
 #include "gnss.h"
 #include "gnss_cli.h"
-#include "console_task.h"
+#include "lorawan.h"
 #include "task_message.h"
 
 portBASE_TYPE prvGnssCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
-                                    const char *pcCommandString);
+                             const char *pcCommandString);
 
 CLI_Command_Definition_t GnssCommandDefinition = {
     (const char *const) "gnss",
@@ -65,7 +65,7 @@ CLI_Command_Definition_t GnssCommandDefinition = {
     prvGnssCommand, -1};
 
 void prvGnssHelpSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
-                                  const char *pcCommandString)
+                           const char *pcCommandString)
 {
     const char *pcParameterString;
     portBASE_TYPE xParameterStringLength;
@@ -80,9 +80,8 @@ void prvGnssHelpSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
         strcat(pcWriteBuffer, "  get   display last known coordinates\r\n");
         strcat(pcWriteBuffer, "  send  send last known coordinates\r\n");
         strcat(pcWriteBuffer, "\r\n");
-        strcat(
-            pcWriteBuffer,
-            "See 'gnss help [command] for the details of each command.\r\n");
+        strcat(pcWriteBuffer,
+               "See 'gnss help [command] for the details of each command.\r\n");
     } else if (strncmp(pcParameterString, "get", 3) == 0) {
         strcat(pcWriteBuffer, "usage: gnss get\r\n");
         strcat(pcWriteBuffer, "\r\n");
@@ -93,15 +92,16 @@ void prvGnssHelpSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
 }
 
 void prvGnssGetSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
-                                  const char *pcCommandString)
+                          const char *pcCommandString)
 {
     const char *pcParameterString;
     am_util_stdio_sprintf(pcWriteBuffer,
-        "Last Known Position: %03.9f, %03.9f\r\n", gfLatitude, gfLongitude);
+                          "Last Known Position: %03.9f, %03.9f\r\n", gfLatitude,
+                          gfLongitude);
 }
 
 void prvGnssSendSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
-                                  const char *pcCommandString)
+                           const char *pcCommandString)
 {
     const char *pcParameterString;
     portBASE_TYPE xParameterStringLength;
@@ -120,7 +120,7 @@ void prvGnssSendSubCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
 }
 
 portBASE_TYPE prvGnssCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
-                                    const char *pcCommandString)
+                             const char *pcCommandString)
 {
     const char *pcParameterString;
     portBASE_TYPE xParameterStringLength;
@@ -134,16 +134,12 @@ portBASE_TYPE prvGnssCommand(char *pcWriteBuffer, size_t xWriteBufferLen,
     }
 
     if (strncmp(pcParameterString, "help", xParameterStringLength) == 0) {
-        prvGnssHelpSubCommand(pcWriteBuffer, xWriteBufferLen,
-                                     pcCommandString);
-    } else if (strncmp(pcParameterString, "get", xParameterStringLength) ==
-               0) {
-        prvGnssGetSubCommand(pcWriteBuffer, xWriteBufferLen,
-                                     pcCommandString);
+        prvGnssHelpSubCommand(pcWriteBuffer, xWriteBufferLen, pcCommandString);
+    } else if (strncmp(pcParameterString, "get", xParameterStringLength) == 0) {
+        prvGnssGetSubCommand(pcWriteBuffer, xWriteBufferLen, pcCommandString);
     } else if (strncmp(pcParameterString, "send", xParameterStringLength) ==
                0) {
-        prvGnssSendSubCommand(pcWriteBuffer, xWriteBufferLen,
-                                     pcCommandString);
+        prvGnssSendSubCommand(pcWriteBuffer, xWriteBufferLen, pcCommandString);
     }
     return pdFALSE;
 }
