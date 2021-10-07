@@ -128,8 +128,6 @@ void system_setup(void)
 
 void system_start(void)
 {
-    am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
-
     // Setup tasks to register the GPIO and IOM commands in the console.
     // These are run at the highest priority to ensure that the commands
     // registered before the console starts.
@@ -137,6 +135,7 @@ void system_start(void)
     xTaskCreate(nm_iom_task, "IOM", 512, 0, 3, &nm_iom_task_handle);
 
     xTaskCreate(nm_console_task, "Console", 512, 0, 2, &nm_console_task_handle);
+
     xTaskCreate(lorawan_task, "LoRaWAN", 512, 0, 2, &lorawan_task_handle);
     xTaskCreate(gnss_task, "GNSS", 256, 0, 2, &gnss_task_handle);
     xTaskCreate(application_task, "Application", 128, 0, 2,

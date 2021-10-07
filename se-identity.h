@@ -102,7 +102,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_GEN_APP_KEY                                        \
              */                                                                                                     \
             .KeyID    = APP_KEY,                                                                                    \
-            .KeyValue = { 0x25, 0xF9, 0x0C, 0x58, 0x4A, 0x1C, 0x2D, 0x20, 0xEE, 0xDB, 0x38, 0xF0, 0xE1, 0x10, 0xC5, 0x0E }, \
+            .KeyValue = { 0x40, 0xA2, 0x0D, 0x0E, 0x92, 0xFC, 0x72, 0x64, 0x13, 0x9B, 0x04, 0x1E, 0xBB, 0x73, 0xCC, 0x75 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -110,7 +110,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_APP_KEY                                            \
              */                                                                                                     \
             .KeyID    = NWK_KEY,                                                                                    \
-            .KeyValue = { 0x25, 0xF9, 0x0C, 0x58, 0x4A, 0x1C, 0x2D, 0x20, 0xEE, 0xDB, 0x38, 0xF0, 0xE1, 0x10, 0xC5, 0x0E }, \
+            .KeyValue = { 0x40, 0xA2, 0x0D, 0x0E, 0x92, 0xFC, 0x72, 0x64, 0x13, 0x9B, 0x04, 0x1E, 0xBB, 0x73, 0xCC, 0x75 } ,                                                                                   \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \

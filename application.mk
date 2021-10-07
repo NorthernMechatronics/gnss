@@ -61,7 +61,7 @@ SRC += soft-se-hal.c
 
 SRC += lorawan.c
 SRC += lorawan_cli.c
-#SRC += gnss.c
-#SRC += gnss_cli.c
+SRC += gnss.c
+SRC += gnss_cli.c
 SRC += application.c
 

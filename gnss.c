@@ -99,8 +99,6 @@ static void gnss_application_setup()
     NVIC_SetPriority((IRQn_Type)(UART0_IRQn + 1),
                      NVIC_configMAX_SYSCALL_INTERRUPT_PRIORITY);
     NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + 1));
-
-    am_util_stdio_printf_init((am_util_stdio_print_char_t)nm_console_print);
 }
 
 static size_t gnss_cmd_fsm(char *cmd, uint8_t dont_care, char ch,

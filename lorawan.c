@@ -44,7 +44,7 @@
 #include <LmhpCompliance.h>
 #include <LmhpClockSync.h>
 #include <LmhpRemoteMcastSetup.h>
-#include <NvmCtxMgmt.h>
+#include <NvmDataMgmt.h>
 #include <board.h>
 #include <timer.h>
 
@@ -137,6 +137,25 @@ static void OnClassChange(DeviceClass_t deviceClass)
     }
 }
 
+static void OnBeaconStatusChange(LoRaMAcHandlerBeaconParams_t *params)
+{
+    DisplayBeaconUpdate(params);
+
+    switch (params->State)
+    {
+    case LORAMAC_HANDLER_BEACON_RX:
+        break;
+    case LORAMAC_HANDLER_BEACON_LOST:
+        break;
+    case LORAMAC_HANDLER_BEACON_NRX:
+        break;
+    default:
+    {
+        break;
+    }
+    }
+}
+
 static void OnMacProcess(void)
 {
     // this is called inside an IRQ
@@ -186,6 +205,13 @@ static void OnNetworkParametersChange(CommissioningParams_t *params)
 {
     am_util_stdio_printf("\r\n");
     DisplayNetworkParametersUpdate(params);
+    nm_console_print_prompt();
+}
+
+static void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
+{
+    am_util_stdio_printf("\r\n");
+    DisplayNvmDataChange(state, size);
     nm_console_print_prompt();
 }
 
@@ -283,12 +309,13 @@ static void lorawan_setup()
 
     LmParameters.Region = LORAMAC_REGION_US915;
     LmParameters.AdrEnable = true;
-    LmParameters.TxDatarate = DR_3;
+    LmParameters.TxDatarate = DR_0;
     LmParameters.PublicNetworkEnable = true;
     LmParameters.DataBufferMaxSize = LM_BUFFER_SIZE;
     LmParameters.DataBuffer = psLmDataBuffer;
 
-    switch (LmParameters.Region) {
+    switch (LmParameters.Region)
+    {
     case LORAMAC_REGION_EU868:
     case LORAMAC_REGION_RU864:
     case LORAMAC_REGION_CN779:
@@ -310,27 +337,26 @@ static void lorawan_setup()
     LmCallbacks.OnTxData = OnTxData;
     LmCallbacks.OnRxData = OnRxData;
     LmCallbacks.OnClassChange = OnClassChange;
+    LmCallbacks.OnNvmDataChange = OnNvmDataChange;
+    LmCallbacks.OnBeaconStatusChange = OnBeaconStatusChange;
 
-    LmHandlerInit(&LmCallbacks, &LmParameters);
+    LmHandlerErrorStatus_t status = LmHandlerInit(&LmCallbacks, &LmParameters);
+    if (status != LORAMAC_HANDLER_SUCCESS)
+    {
+        am_util_stdio_printf("\r\n\r\nLoRaWAN application framework "
+                             "initialization failed\r\n\r\n");
+        nm_console_print_prompt();
+    }
     LmHandlerSetSystemMaxRxError(20);
-
-    LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE,
-                             &LmComplianceParams);
-
-    LmHandlerPackageRegister(PACKAGE_ID_CLOCK_SYNC,
-                             NULL);
-
-    LmHandlerPackageRegister(PACKAGE_ID_REMOTE_MCAST_SETUP,
-                             NULL);
+    LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE, &LmComplianceParams);
+    LmHandlerPackageRegister(PACKAGE_ID_CLOCK_SYNC, NULL);
+    LmHandlerPackageRegister(PACKAGE_ID_REMOTE_MCAST_SETUP, NULL);
 }
 
 void lorawan_task(void *pvParameters)
 {
     FreeRTOS_CLIRegisterCommand(&LoRaWANCommandDefinition);
     LoRaWANTaskQueue = xQueueCreate(10, sizeof(task_message_t));
-
-    am_util_stdio_printf("\r\n\r\nLoRaWAN Application State Machine Started\r\n\r\n");
-    nm_console_print_prompt();
 
     lorawan_setup();
 
